@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+		">
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" >  
+     	<property name="messageConverters">     
+        	<list>     
+           		<!-- <bean class = "org.springframework.http.converter.StringHttpMessageConverter">     
+               		<property name = "supportedMediaTypes">  
+                      	<list>  
+                          	<value>text/html;charset=UTF-8</value>     
+                  		</list>     
+               		</property>  
+             	</bean> -->   
+             	<!-- 用上述默认方法，会生成大量Accept-Charset，所以重写了方法，如下 --> 
+             	<bean class = "com.cn.core.UTF8StringHttpMessageConverter">     
+             	</bean> 
+         	</list>     
+   		</property>    
+    </bean>  
+	
+	<!-- scan controller -->	
+	<context:component-scan base-package="com.cn.api.mvc"/>
+	<!--  Resolves views -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/"/>
+		<property name="suffix" value=".jsp" />
+	</bean>
+	
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="-1"></property>
+	</bean>
+	
+	<!-- datasource配置 -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+
+	
+	
+		
+	    
+	     	<!--   
+ 		  <property name="url" value="jdbc:mysql://114.214.170.75:3306/ticket?characterEncoding=utf-8"/>    
+	      <property name="username" value="root"/>    
+	      <property name="password" value="1234"/>     --> 
+ 		 <property name="driverClassName" value="com.mysql.jdbc.Driver"/>    
+		  <property name="url" value="jdbc:mysql://localhost:3306/ticket?characterEncoding=utf-8"/>    
+	      	<property name="username" value="root"/>    
+	      	<property name="password" value="123456"/>
+	      
+	      <property name="initialSize" value="10"/>
+	      <property name="maxIdle" value="20"/>
+	      <property name="minIdle" value="5"/>
+	      <property name="maxActive" value="1000"/>
+	      <property name="maxWait" value="6000"/>
+	      <property name="removeAbandoned" value="true"/>
+	      <property name="removeAbandonedTimeout" value="400"/>
+	      <property name="poolPreparedStatements" value="true" />
+	</bean>
+
+	<bean id="jdbcTemplate" class="com.cn.common.database.JdbcTemplate">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
+	<bean id="daoSupport" class="com.cn.core.DataAccessorWrapper">
+		<property name="jdbcTemplate" ref="jdbcTemplate"/>
+	</bean>	
+	
+	<!-- 验证key权限，配置start -->
+	<bean id="dataSourceTwo" class="org.apache.commons.dbcp.BasicDataSource">
+		  <property name="driverClassName" value="com.mysql.jdbc.Driver"/>    
+	      <property name="url" value="jdbc:mysql://202.38.79.38:3306/ticket_key?characterEncoding=utf-8"/>    
+	      <property name="username" value="root"/>    
+	      <property name="password" value="root"/>
+	</bean>
+	
+	<bean id="jdbcTemplateTwo" class="com.cn.api.authkey.core.JdbcTemplateTwo">
+		<property name="dataSource" ref="dataSourceTwo"></property>
+	</bean>
+	
+	<bean id="daoSupportTwo" class="com.cn.api.authkey.core.DataAccessorWrapperTwo">
+		<property name="jdbcTemplateTwo" ref="jdbcTemplateTwo"/>
+	</bean>	
+	<!-- 验证key权限，配置end -->
+	<!-- 事务配置 -->
+	<!-- <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean> -->
+	<!-- 采用基于xml的事物配置方式 -->
+	<!-- <tx:advice id="txadvice" transaction-manager="transactionManager">
+		<tx:attributes>	
+		    <tx:method name="add*" propagation="REQUIRED" read-only="false"/>
+		    <tx:method name="update*" propagation="REQUIRED" read-only="false"/>
+		    <tx:method name="delete*" propagation="REQUIRED" read-only="false"/>
+		    <tx:method name="execute*" propagation="REQUIRED" read-only="false"/>			
+		    <tx:method name="*"  propagation="NOT_SUPPORTED" read-only="false"/>
+		</tx:attributes>
+	</tx:advice> -->
+	
+</beans>
